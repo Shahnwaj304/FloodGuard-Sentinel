@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Monitoring Dashboard | FloodGuard Sentinel{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block content %}
+<div class="section-heading">
+  <div><span class="eyebrow">SITUATIONAL OVERVIEW</span><h1>Monitoring dashboard</h1><p class="text-muted mb-0">Live weather context, configured monitoring sites, and reviewed records.</p></div>
+  <a class="btn btn-outline-primary" href="{{ url_for('main.data_sources') }}">Data sources & limitations</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Monitoring sites</span><strong>{{ locations|length }}</strong><small>Configured sites</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Staff observations</span><strong>{{ observations|length }}</strong><small>Non-demo records</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Risk reviews</span><strong>{{ assessments|length }}</strong><small>Staff-entered assessments</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Alert records</span><strong>{{ alerts|length }}</strong><small>Application workflow only</small></div></div>
+</div>
+<section class="card-soft p-3 mb-4">
+  <div class="section-heading"><div><h2 class="h5 mb-1">Current weather & rainfall context</h2><p class="text-muted small mb-0">Source: <a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener">Open-Meteo Forecast API</a></p></div>
+  {% if weather.available %}<span class="badge text-bg-success">Feed connected</span>{% else %}<span class="badge text-bg-secondary">Feed unavailable</span>{% endif %}</div>
+  <p class="small text-muted">{{ weather.message }}</p>
+  {% if weather.available %}
+  <div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Location</th><th>Model time (UTC)</th><th>Temp.</th><th>Humidity</th><th>Precipitation</th><th>Rain</th><th>Wind</th></tr></thead><tbody>
+  {% for item in weather['items'] %}<tr><td>{{ item.location_name }}<div class="small text-muted">{{ item.district }}</div></td><td>{{ item.time or 'Unknown' }}</td><td>{{ item.temperature }}</td><td>{{ item.humidity }}</td><td>{{ item.precipitation }}</td><td>{{ item.rain }}</td><td>{{ item.wind }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="mb-0">Live weather values are not available right now. The dashboard is not substituting sample values.</p>{% endif %}
+  {% if weather.checked_at %}<div class="small text-muted mt-2">Checked at {{ weather.checked_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}. Model time is shown separately for each site.</div>{% endif %}
+</section>
+<div class="row g-4">
+  <div class="col-lg-7"><div class="card-soft p-3"><div class="section-heading"><h2 class="h5">Monitoring locations</h2><a href="{{ url_for('main.locations') }}">View locations →</a></div><div id="map" class="map-box"></div><div class="small text-muted mt-2">Pins identify configured monitoring sites, not live flood boundaries or hazard detections.</div></div></div>
+  <div class="col-lg-5"><div class="card-soft p-3 h-100"><h2 class="h5 mb-3">Latest risk assessments</h2>{% for a in assessments %}<div class="list-row"><div><strong>{{ a.location.name }}</strong><div class="small text-muted">{{ a.created_at.strftime('%Y-%m-%d %H:%M UTC') if a.created_at else 'Time unavailable' }}</div></div><span class="badge level-{{ a.level|lower|replace(' ','-')|replace('/','') }}">{{ a.level }}</span></div>{% else %}<p class="text-muted">No staff risk assessments have been recorded.</p>{% endfor %}<a class="btn btn-sm btn-outline-primary mt-3" href="{{ url_for('main.risk') }}">All assessments</a></div></div>
+</div>
+<div class="row g-4 mt-1">
+  <div class="col-lg-6"><div class="card-soft p-3"><h2 class="h5">Application alerts</h2><p class="small text-muted">These are internal workflow records, not official emergency warnings.</p>{% for a in alerts %}<div class="list-row"><div><strong>{{ a.title }}</strong><div class="small text-muted">{{ a.location.name }} · {{ a.status }}</div></div><span class="badge badge-soft">{{ a.severity }}</span></div>{% else %}<p class="text-muted">No application alerts have been recorded.</p>{% endfor %}</div></div>
+  <div class="col-lg-6"><div class="card-soft p-3"><h2 class="h5">Staff observations</h2>{% for o in observations %}<div class="list-row"><div><strong>{{ o.location.name }}</strong><div class="small text-muted">{{ o.observation_type }} · {{ o.status }}</div><div class="small">{{ o.summary }}</div></div><span class="badge badge-soft">Staff record</span></div>{% else %}<p class="text-muted">No staff observations have been recorded.</p>{% endfor %}<a class="btn btn-sm btn-outline-primary mt-3" href="{{ url_for('main.satellite') }}">Satellite catalogue</a></div></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>const points={{ map_points|tojson }};const map=L.map('map').setView([28.2,84.2],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);points.forEach(p=>L.marker([p.lat,p.lon]).addTo(map).bindPopup(`<strong>${p.name}</strong><br>${p.district}<br>${p.hazard}`));if(points.length){map.fitBounds(points.map(p=>[p.lat,p.lon]),{padding:[25,25]});}</script>{% endblock %}

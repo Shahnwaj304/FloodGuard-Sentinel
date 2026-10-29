@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Satellite Intelligence | FloodGuard Sentinel{% endblock %}
+{% block content %}
+<div class="section-heading"><div><span class="eyebrow">EARTH OBSERVATION CATALOGUE</span><h1>Satellite intelligence</h1><p class="text-muted">Recent Copernicus Sentinel catalogue metadata for Nepal's bounding region.</p></div>{% if current_user.is_authenticated and current_user.role in ['Satellite Data Officer','Administrator'] %}<a class="btn btn-primary" href="{{ url_for('main.observation_new') }}">+ Add staff observation</a>{% endif %}</div>
+<div class="alert alert-warning">Catalogue entries show that satellite products exist for an area and time. They are not processed flood maps, verified flood detections, or official warnings.</div>
+<section class="card-soft p-3 mb-4">
+  <div class="section-heading"><div><h2 class="h5 mb-1">Copernicus Sentinel catalogue results</h2><p class="small text-muted mb-0"><a href="{{ catalogue.source_url or 'https://stac.dataspace.copernicus.eu/v1/' }}" target="_blank" rel="noopener">Copernicus Data Space STAC API</a></p></div>{% if catalogue.available %}<span class="badge text-bg-success">Catalogue queried</span>{% else %}<span class="badge text-bg-secondary">Unavailable</span>{% endif %}</div>
+  <p class="small text-muted">{{ catalogue.message }}</p>
+  {% if catalogue.checked_at %}<p class="small text-muted">Checked at {{ catalogue.checked_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}.</p>{% endif %}
+  {% if catalogue.available and catalogue['items'] %}
+  <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Product</th><th>Collection</th><th>Acquisition time</th><th>Platform</th><th>Cloud cover</th><th>Catalogue</th></tr></thead><tbody>
+  {% for item in catalogue['items'] %}<tr><td><strong>{{ item.title }}</strong><div class="small text-muted">{{ item.id }}</div></td><td>{{ item.collection }}</td><td>{{ item.datetime }}</td><td>{{ item.platform }}</td><td>{% if item.cloud_cover is not none %}{{ item.cloud_cover }}%{% else %}Not supplied{% endif %}</td><td><a href="{{ item.url }}" target="_blank" rel="noopener">Open catalogue</a></td></tr>{% endfor %}
+  </tbody></table></div>
+  {% elif catalogue.available %}<p class="mb-0">The catalogue responded successfully but returned no matching products for this region and date window.</p>{% else %}<p class="mb-0">No sample products are shown as substitutes. Try again later or open the official catalogue directly.</p>{% endif %}
+</section>
+<section class="card-soft p-3"><h2 class="h5">Staff-submitted observation records</h2><p class="small text-muted">These records are entered by authorised staff. They are not automatically verified satellite products.</p><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Location</th><th>Observation type</th><th>Summary</th><th>Source</th><th>Recorded time</th><th>Status</th></tr></thead><tbody>
+{% for o in observations %}<tr><td><a href="{{ url_for('main.location_detail', location_id=o.location_id) }}">{{ o.location.name }}</a></td><td>{{ o.observation_type }}</td><td>{{ o.summary }}</td><td>{{ o.source }}</td><td>{{ o.observed_at.strftime('%Y-%m-%d %H:%M UTC') if o.observed_at else 'Unknown' }}</td><td><span class="badge badge-soft">{{ o.status }}</span></td></tr>{% else %}<tr><td colspan="6">No staff observation records have been submitted.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

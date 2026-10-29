@@ -1,0 +1,315 @@
+{% extends 'base.html' %} {% block title %}Monitoring Dashboard | FloodGuard Sentinel{% endblock 
+%} {% block head %}<link rel="stylesheet" 
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %} {% block content %} <div 
+class="section-heading">
+  <div><span class="eyebrow">SITUATIONAL OVERVIEW</span><h1>Monitoring dashboard</h1><p 
+  class="text-muted mb-0">Live weather context, configured monitoring sites, and reviewed 
+  records.</p></div> <a class="btn btn-outline-primary" href="{{ url_for('main.data_sources') 
+  }}">Data sources & limitations</a>
+ls</div> <div class="alert alert-warning"><strong>Safety notice:</strong> Weather estimates and 
+satellite catalogue metadata are not river-gauge measurements or official flood warnings. Follow 
+instructions from Nepal's authorised agencies.</div> <div class="row g-3 mb-4"> nano 
+app/templates/dashboard.html <div class="col-6 col-lg-3"><div 
+class="metric-card"><span>Monitoring sites</span><strong>{{ locations|length 
+}}</strong><small>Configured sites</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Staff observations</span><strong>{{ 
+  observations|length }}</strong><small>Non-demo records</small></div></div> <div class="col-6 
+  col-lg-3"><div class="metric-card"><span>Risk reviews</span><strong>{{ assessments|length 
+  }}</strong><small>Staff-entered assessments</small></div></div> <div class="col-6 
+  col-lg-3"><div class="metric-card"><span>Alert records</span><strong>{{ alerts|length 
+  }}</strong><small>Application workflow only</small></div></div>
+</div> <section class="card-soft p-3 mb-4"> shahnwajshekh@Shahnwajs-MacBook-Air 
+FloodGuard-Sentinel % pip install -r requirements.txt <div class="section-heading"><div><h2 
+class="h5 mb-1">Current weather & rainfall context</h2><p class="text-muted small mb-0">Source: 
+<a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener">Open-Meteo Forecast 
+API</a></p></div> zsh: command not found: pip {% if weather.available %}<span class="badge 
+text-bg-success">Feed connected</span>{% else %}<span class="badge text-bg-secondary">Feed 
+unavailable</span>{% endif %}</div> shahnwajshekh@Shahnwajs-MacBook-Air FloodGuard-Sentinel % 
+python3 --version <p class="small text-muted">{{ weather.message }}</p> python3 -m pip --version 
+{% if weather.available %} Python 3.14.8 <div class="table-responsive"><table class="table 
+table-sm align-middle"><thead><tr><th>Location</th><th>Model time 
+(UTC)</th><th>Temp.</th><th>Humidity</th><th>Precipitation</th><th>Rain</th><th>Wind</th></tr></thead><tbody> 
+pip 26.2.1 from 
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pip (python 3.14)  
+{% for item in weather['items'] %}<tr><td>{{ item.location_name }}<div class="small 
+text-muted">{{ item.district }}</div></td><td>{{ item.time or 'Unknown' }}</td><td>{{ 
+item.temperature }}</td><td>{{ item.humidity }}</td><td>{{ item.precipitation }}</td><td>{{ 
+item.rain }}</td><td>{{ item.wind }}</td></tr>{% endfor %} shahnwajshekh@Shahnwajs-MacBook-Air 
+FloodGuard-Sentinel % source .venv/bin/activate </tbody></table></div> source: no such file or 
+directory: .venv/bin/activate {% else %}<p class="mb-0">Live weather values are not available 
+right now. The dashboard is not substituting sample values.</p>{% endif %} 
+shahnwajshekh@Shahnwajs-MacBook-Air FloodGuard-Sentinel % source .venv/bin/activate {% if 
+weather.checked_at %}<div class="small text-muted mt-2">Checked at {{ 
+weather.checked_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}. Model time is shown separately for each 
+site.</div>{% endif %} </section> <div class="row g-4"> source: no such file or directory: 
+.venv/bin/activate <div class="col-lg-7"><div class="card-soft p-3"><div 
+class="section-heading"><h2 class="h5">Monitoring locations</h2><a href="{{ 
+url_for('main.locations') }}">View locations →</a></div><div id="map" class="map-box"></div><div 
+class="small text-muted mt-2">Pins identify configured monitoring sites, not live flood 
+boundaries or hazard detections.</div></div></div> shahnwajshekh@Shahnwajs-MacBook-Air 
+FloodGuard-Sentinel % python3 -m venv .venv <div class="col-lg-5"><div class="card-soft p-3 
+h-100"><h2 class="h5 mb-3">Latest risk assessments</h2>{% for a in assessments %}<div 
+class="list-row"><div><strong>{{ a.location.name }}</strong><div class="small text-muted">{{ 
+a.created_at.strftime('%Y-%m-%d %H:%M UTC') if a.created_at else 'Time unavailable' 
+}}</div></div><span class="badge level-{{ a.level|lower|replace(' ','-')|replace('/','') }}">{{ 
+a.level }}</span></div>{% else %}<p class="text-muted">No staff risk assessments have been 
+recorded.</p>{% endfor %}<a class="btn btn-sm btn-outline-primary mt-3" href="{{ 
+url_for('main.risk') }}">All assessments</a></div></div> </div> <div class="row g-4 mt-1"> 
+shahnwajshekh@Shahnwajs-MacBook-Air FloodGuard-Sentinel % source .venv/bin/activate <div 
+class="col-lg-6"><div class="card-soft p-3"><h2 class="h5">Application alerts</h2><p class="small 
+text-muted">These are internal workflow records, not official emergency warnings.</p>{% for a in 
+alerts %}<div class="list-row"><div><strong>{{ a.title }}</strong><div class="small 
+text-muted">{{ a.location.name }} · {{ a.status }}</div></div><span class="badge badge-soft">{{ 
+a.severity }}</span></div>{% else %}<p class="text-muted">No application alerts have been 
+recorded.</p>{% endfor %}</div></div> (.venv) shahnwajshekh@Shahnwajs-MacBook-Air 
+FloodGuard-Sentinel % python -m pip install --upgrade pip <div class="col-lg-6"><div 
+class="card-soft p-3"><h2 class="h5">Staff observations</h2>{% for o in observations %}<div 
+class="list-row"><div><strong>{{ o.location.name }}</strong><div class="small text-muted">{{ 
+o.observation_type }} · {{ o.status }}</div><div class="small">{{ o.summary }}</div></div><span 
+class="badge badge-soft">Staff record</span></div>{% else %}<p class="text-muted">No staff 
+observations have been recorded.</p>{% endfor %}<a class="btn btn-sm btn-outline-primary mt-3" 
+href="{{ url_for('main.satellite') }}">Satellite catalogue</a></div></div> </div> {% endblock %} 
+{% block scripts %}<script 
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>const points={{ 
+map_points|tojson }};const 
+map=L.map('map').setView([28.2,84.2],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; 
+OpenStreetMap 
+contributors'}).addTo(map);points.forEach(p=>L.marker([p.lat,p.lon]).addTo(map).bindPopup(`<strong>${p.name}</strong><br>${p.district}<br>${p.hazard}`));if(points.length){map.fitBounds(points.map(p=>[p.lat,p.lon]),{padding:[25,25]});}</script>{% 
+endblock %} python -m pip install -r requirements.txt
+Requirement alreadRequirement alreadRequirement alpython3.14/site-packages (26.2.1)
+Collecting pip
+  Using cached pip-26.2.2-py3-none-any.whl.metadata (4.6 kB)
+Using cached pip-26.2.2-py3-none-any.whl (1.8 MB)
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 26.2.1
+    Uninstalling pip-26.2.1:
+      Successfully uninstalled pip-26.2.1
+Successfully installed pip-26.2.2
+Collecting Flask<4.0,>=3.0 (from -r requirements.txt (line 1))
+  Using cached flask-3.1.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting Flask-SQLAlchemy<4.0,>=3.1 (from -r requirements.txt (line 2))
+  Using cached flask_sqlalchemy-3.1.1-py3-none-any.whl.metadata (3.4 kB)
+Collecting Flask-Login<1.0,>=0.6 (from -r requirements.txt (line 3))
+  Using cached Flask_Login-0.6.3-py3-none-any.whl.metadata (5.8 kB)
+Collecting Flask-WTF<2.0,>=1.2 (from -r requirements.txt (line 4))
+  Using cached flask_wtf-1.3.0-py3-none-any.whl.metadata (3.4 kB)
+Collecting python-dotenv<2.0,>=1.0 (from -r requirements.txt (line 5))
+  Using cached python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+Collecting psycopg<4.0,>=3.2 (from psycopg[binary]<4.0,>=3.2->-r requirements.txt (line 6))
+  Using cached psycopg-3.3.6-py3-none-any.whl.metadata (4.4 kB)
+Collecting boto3<2.0,>=1.35 (from -r requirements.txt (line 7))
+  Using cached boto3-1.43.120-py3-none-any.whl.metadata (6.6 kB)
+Collecting gunicorn<24,>=22 (from -r requirements.txt (line 8))
+  Using cached gunicorn-23.0.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting pytest<9,>=8 (from -r requirements.txt (line 9))
+  Using cached pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)
+Collecting requests<3.0,>=2.32 (from -r requirements.txt (line 10))
+  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+Collecting watchtower<4.0,>=3.3 (from -r requirements.txt (line 11))
+  Downloading watchtower-3.4.0-py3-none-any.whl.metadata (16 kB)
+Collecting blinker>=1.9.0 (from Flask<4.0,>=3.0->-r requirements.txt (line 1))
+  Using cached blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting click>=8.1.3 (from Flask<4.0,>=3.0->-r requirements.txt (line 1))
+  Using cached click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting itsdangerous>=2.2.0 (from Flask<4.0,>=3.0->-r requirements.txt (line 1))
+  Using cached itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting jinja2>=3.1.2 (from Flask<4.0,>=3.0->-r requirements.txt (line 1))
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting markupsafe>=2.1.1 (from Flask<4.0,>=3.0->-r requirements.txt (line 1))
+  Using cached markupsafe-3.0.4-cp314-cp314-macosx_11_0_arm64.whl.metadata (2.7 kB)
+Collecting werkzeug>=3.1.0 (from Flask<4.0,>=3.0->-r requirements.txt (line 1))
+  Using cached werkzeug-3.1.9-py3-none-any.whl.metadata (4.1 kB)
+Collecting sqlalchemy>=2.0.16 (from Flask-SQLAlchemy<4.0,>=3.1->-r requirements.txt (line 2))
+  Using cached sqlalchemy-2.1.6-cp314-cp314-macosx_11_0_arm64.whl.metadata (9.7 kB)
+Collecting wtforms (from Flask-WTF<2.0,>=1.2->-r requirements.txt (line 4))
+  Using cached wtforms-3.3.1-py3-none-any.whl.metadata (4.9 kB)
+Collecting botocore<1.44.0,>=1.43.120 (from boto3<2.0,>=1.35->-r requirements.txt (line 7))
+  Using cached botocore-1.43.120-py3-none-any.whl.metadata (5.6 kB)
+Collecting jmespath<2.0.0,>=0.7.1 (from boto3<2.0,>=1.35->-r requirements.txt (line 7))
+  Using cached jmespath-1.1.0-py3-none-any.whl.metadata (7.6 kB)
+Collecting s3transfer<0.20.0,>=0.19.0 (from boto3<2.0,>=1.35->-r requirements.txt (line 7))
+  Using cached s3transfer-0.19.3-py3-none-any.whl.metadata (1.7 kB)
+Collecting packaging (from gunicorn<24,>=22->-r requirements.txt (line 8))
+  Using cached packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Collecting iniconfig>=1 (from pytest<9,>=8->-r requirements.txt (line 9))
+  Using cached iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+Collecting pluggy<2,>=1.5 (from pytest<9,>=8->-r requirements.txt (line 9))
+  Using cached pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+Collecting pygments>=2.7.2 (from pytest<9,>=8->-r requirements.txt (line 9))
+  Using cached pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting charset_normalizer<4,>=2 (from requests<3.0,>=2.32->-r requirements.txt (line 10))
+  Downloading charset_normalizer-3.5.2-cp314-cp314-macosx_10_15_universal2.whl.metadata (46 kB)
+Collecting idna<4,>=2.5 (from requests<3.0,>=2.32->-r requirements.txt (line 10))
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting urllib3<3,>=1.26 (from requests<3.0,>=2.32->-r requirements.txt (line 10))
+  Using cached urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting certifi>=2023.5.7 (from requests<3.0,>=2.32->-r requirements.txt (line 10))
+  Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+Collecting python-dateutil<3.0.0,>=2.1 (from botocore<1.44.0,>=1.43.120->boto3<2.0,>=1.35->-r requirements.txt (line 7))
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting psycopg-binary==3.3.6 (from psycopg[binary]<4.0,>=3.2->-r requirements.txt (line 6))
+  Using cached psycopg_binary-3.3.6-cp314-cp314-macosx_11_0_arm64.whl.metadata (2.7 kB)
+Collecting six>=1.5 (from python-dateutil<3.0.0,>=2.1->botocore<1.44.0,>=1.43.120->boto3<2.0,>=1.35->-r requirements.txt (line 7))
+  Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting typing-extensions>=4.6.0 (from sqlalchemy>=2.0.16->Flask-SQLAlchemy<4.0,>=3.1->-r requirements.txt (line 2))
+  Using cached typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Using cached flask-3.1.3-py3-none-any.whl (103 kB)
+Using cached flask_sqlalchemy-3.1.1-py3-none-any.whl (25 kB)
+Using cached Flask_Login-0.6.3-py3-none-any.whl (17 kB)
+Using cached flask_wtf-1.3.0-py3-none-any.whl (13 kB)
+Using cached python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+Using cached psycopg-3.3.6-py3-none-any.whl (215 kB)
+Using cached boto3-1.43.120-py3-none-any.whl (140 kB)
+Using cached gunicorn-23.0.0-py3-none-any.whl (85 kB)
+Using cached pytest-8.4.2-py3-none-any.whl (365 kB)
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading watchtower-3.4.0-py3-none-any.whl (18 kB)
+Using cached botocore-1.43.120-py3-none-any.whl (16.2 MB)
+Downloading charset_normalizer-3.5.2-cp314-cp314-macosx_10_15_universal2.whl (367 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Using cached jmespath-1.1.0-py3-none-any.whl (20 kB)
+Using cached pluggy-1.7.0-py3-none-any.whl (27 kB)
+Using cached psycopg_binary-3.3.6-cp314-cp314-macosx_11_0_arm64.whl (4.8 MB)
+Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Using cached s3transfer-0.19.3-py3-none-any.whl (90 kB)
+Using cached urllib3-2.8.0-py3-none-any.whl (135 kB)
+Using cached blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+Using cached click-8.5.0-py3-none-any.whl (125 kB)
+Using cached iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+Using cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached markupsafe-3.0.4-cp314-cp314-macosx_11_0_arm64.whl (12 kB)
+Using cached packaging-26.3-py3-none-any.whl (129 kB)
+Using cached pygments-2.21.0-py3-none-any.whl (1.3 MB)
+Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Using cached sqlalchemy-2.1.6-cp314-cp314-macosx_11_0_arm64.whl (2.5 MB)
+Using cached typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Using cached werkzeug-3.1.9-py3-none-any.whl (228 kB)
+Using cached wtforms-3.3.1-py3-none-any.whl (171 kB)
+Installing collected packages: urllib3, typing-extensions, six, python-dotenv, pygments, psycopg-binary, psycopg, pluggy, packaging, markupsafe, jmespath, itsdangerous, iniconfig, idna, click, charset_normalizer, certifi, blinker, wtforms,werkzeug, sqlalchemy, requests, python-dateutil, pytest, jinja2, gunicorn, Flask, botocore, s3transfer, Flask-WTF, Flask-SQLAlchemy, Flask-Login, boto3, watchtower
+Successfully installed Flask-3.1.3 Flask-Login-0.6.3 Flask-SQLAlchemy-3.1.1 Flask-WTF-1.3.0 blinker-1.9.0 boto3-1.43.120 botocore-1.43.120 certifi-2026.10.23 charset_normalizer-3.5.2 click-8.5.0 gunicorn-23.0.0 idna-3.20 iniconfig-2.3.1 itsdangerous-2.2.0 jinja2-3.1.6 jmespath-1.1.0 markupsafe-3.0.4 packaging-26.3 pluggy-1.7.0 psycopg-3.3.6 psycopg-binary-3.3.6 pygments-2.21.0 pytest-8.4.2 python-dateutil-2.9.0.post0 python-dotenv-1.2.4 requests-2.34.2 s3transfer-0.19.3 six-1.17.0 sqlalchemy-2.1.6 typing-extensions-4.16.0 urllib3-2.8.0 watchtower-3.4.0 werkzeug-3.1.9 wtforms-3.3.1
+(.venv) shahnwajshekh@Shahnwajs-MacBook-Air FloodGuard-Sentinel % python -m pytest -v
+================================================= test session starts ==================================================
+platform darwin -- Python 3.14.8, pytest-8.4.2, pluggy-1.7.0 -- /Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel
+collected 7 items                                                                                                      
+
+tests/test_app.py::test_public_pages PASSED                                                                      [ 14%]
+tests/test_app.py::test_staff_login_and_role_access PASSED                                                       [ 28%]
+tests/test_app.py::test_wrong_role_blocked PASSED                                                                [ 42%]
+tests/test_app.py::test_health_json PASSED                                                                       [ 57%]
+tests/test_app.py::test_fresh_database_has_no_fabricated_hazard_records PASSED                                   [ 71%]
+tests/test_app.py::test_weather_feed_unavailable_state_is_safe PASSED                                            [ 85%]
+tests/test_app.py::test_satellite_catalogue_page_does_not_require_live_network PASSED                            [100%]
+
+================================================== 7 passed in 6.76s ===================================================
+(.venv) shahnwajshekh@Shahnwajs-MacBook-Air FloodGuard-Sentinel % python run.py
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 106-802-186
+127.0.0.1 - - [28/Oct/2026 23:21:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2026 23:21:10] "GET /static/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Oct/2026 23:22:04] "GET /dashboard HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/app/routes.py", line 55, in dashboard
+    return render_template('dashboard.html', locations=locations, assessments=assessments, alerts=alerts, observations=observations, map_points=map_points, weather=weather)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/app/templates/dashboard.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/app/templates/base.html", line 1, in top-level template code
+    <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{% block title %}{{ app_name }}{% endblock %}</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">{% block head %}{% endblock %}</head><body><nav class="navbar navbar-expand-lg navbar-dark bg-navy"><div class="container"><a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}">🌊 FloodGuard Sentinel</a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="nav"><ul class="navbar-nav ms-auto"><li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.locations') }}">Locations</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.satellite') }}">Satellite Data</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.risk') }}">Risk Assessments</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.alerts') }}">Alerts</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.preparedness') }}">Preparedness</a></li>{% if current_user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="{{ url_for('main.control_room') if current_user.role in ['Administrator','Risk & Alert Officer'] else url_for('main.dashboard') }}">Workspace</a></li><li class="nav-item"><form method="post" action="{{ url_for('main.logout') }}" class="d-inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="nav-link btn btn-link" type="submit">Logout</button></form></li>{% else %}<li class="nav-item"><a class="nav-link" href="{{ url_for('main.login') }}">Staff Login</a></li>{% endif %}</ul></div></div></nav>{% if demo_mode %}<div class="demo-banner">DEMO MODE · Sample records are illustrative, not live satellite measurements or official emergency warnings.</div>{% endif %}<main class="container py-4">{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endif %}{% endwith %}{% block content %}{% endblock %}</main><footer class="footer mt-5"><div class="container py-4 d-flex flex-column flex-md-row justify-content-between gap-2"><span>© 2026 FloodGuard Sentinel · Student cloud application prototype</span><a href="{{ url_for('main.data_sources') }}">Data sources & limitations</a></div></footer><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>{% block scripts %}{% endblock %}</body></html>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/app/templates/dashboard.html", line 22, in block 'content'
+    {% for item in weather.items %}<tr><td>{{ item.location_name }}<div class="small text-muted">{{ item.district }}</div></td><td>{{ item.time or 'Unknown' }}</td><td>{{ item.temperature }}</td><td>{{ item.humidity }}</td><td>{{ item.precipitation }}</td><td>{{ item.rain }}</td><td>{{ item.wind }}</td></tr>{% endfor %}
+    ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'builtin_function_or_method' object is not iterable
+127.0.0.1 - - [28/Oct/2026 23:22:04] "GET /dashboard?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2026 23:22:04] "GET /dashboard?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2026 23:22:04] "GET /dashboard?__debugger__=yes&cmd=resource&f=console.png&s=IpvrmO7a73CHlj9ylz88 HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2026 23:22:04] "GET /dashboard?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2026 23:22:23] "GET /locations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2026 23:22:23] "GET /static/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Oct/2026 23:22:24] "GET /dashboard HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/app/routes.py", line 55, in dashboard
+    return render_template('dashboard.html', locations=locations, assessments=assessments, alerts=alerts, observations=observations, map_points=map_points, weather=weather)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/.venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/app/templates/dashboard.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/app/templates/base.html", line 1, in top-level template code
+    <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{% block title %}{{ app_name }}{% endblock %}</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">{% block head %}{% endblock %}</head><body><nav class="navbar navbar-expand-lg navbar-dark bg-navy"><div class="container"><a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}">🌊 FloodGuard Sentinel</a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="nav"><ul class="navbar-nav ms-auto"><li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.locations') }}">Locations</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.satellite') }}">Satellite Data</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.risk') }}">Risk Assessments</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.alerts') }}">Alerts</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.preparedness') }}">Preparedness</a></li>{% if current_user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="{{ url_for('main.control_room') if current_user.role in ['Administrator','Risk & Alert Officer'] else url_for('main.dashboard') }}">Workspace</a></li><li class="nav-item"><form method="post" action="{{ url_for('main.logout') }}" class="d-inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="nav-link btn btn-link" type="submit">Logout</button></form></li>{% else %}<li class="nav-item"><a class="nav-link" href="{{ url_for('main.login') }}">Staff Login</a></li>{% endif %}</ul></div></div></nav>{% if demo_mode %}<div class="demo-banner">DEMO MODE · Sample records are illustrative, not live satellite measurements or official emergency warnings.</div>{% endif %}<main class="container py-4">{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endif %}{% endwith %}{% block content %}{% endblock %}</main><footer class="footer mt-5"><div class="container py-4 d-flex flex-column flex-md-row justify-content-between gap-2"><span>© 2026 FloodGuard Sentinel · Student cloud application prototype</span><a href="{{ url_for('main.data_sources') }}">Data sources & limitations</a></div></footer><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>{% block scripts %}{% endblock %}</body></html>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/college/Sem_6/DDAC/code/FloodGuard-Sentinel/app/templates/dashboard.html", line 22, in block 'content'
+    {% for item in weather.items %}<tr><td>{{ item.location_name }}<div class="small text-muted">{{ item.district }}</div></td><td>{{ item.time or 'Unknown' }}</td><td>{{ item.temperature }}</td><td>{{ item.humidity }}</td><td>{{ item.precipitation }}</td><td>{{ item.rain }}</td><td>{{ item.wind }}</td></tr>{% endfor %}
+    ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'builtin_function_or_method' object is not iterable
+127.0.0.1 - - [28/Oct/2026 23:22:24] "GET /dashboard?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+127.0.0.1 - - [28/Oct/2026 23:22:24] "GET /dashboard?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+127.0.0.1 - - [28/Oct/2026 23:22:24] "GET /dashboard?__debugger__=yes&cmd=resource&f=console.png&s=IpvrmO7a73CHlj9ylz88 HTTP/1.1" 304 -
+nano app/templates/dashboard.
+nano app/templates/dashboard.htmlçç≈python -c "from pathlib import Path; p=Path('app/templates/dashboard.html'); s=p.read_text(); old='{% for item in weather.items %}'; new=\"{% for item in weather['items'] %}\"; print('Found target:', old in s); p.write_text(s.replace(old,new));"python -c "from pathlib import Path; p=Path('app/templates/dashboard.html'); s=p.read_text(); old='{% for item in weather.items %}'; new=\"{% for item in weather['items'] %}\"; print('Found target:', old in s); p.write_text(s.replace(old,new));"
+
+
+
+
+
+ls
+nano app/templates/dashboard.html
+
+
+
+
+
+

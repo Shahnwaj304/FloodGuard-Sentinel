@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Data Sources & Limitations | FloodGuard Sentinel{% endblock %}
+{% block content %}
+<div class="section-heading"><div><span class="eyebrow">TRANSPARENCY & PROVENANCE</span><h1>Data sources & limitations</h1><p class="text-muted">Each feed has a defined purpose and limitations. Missing data is never replaced with fabricated current values.</p></div></div>
+<div class="row g-3">
+<div class="col-lg-6"><div class="card-soft p-4"><h2 class="h5">Integrated external sources</h2><ul>
+<li><strong>Open-Meteo Forecast API</strong> — current modelled temperature, humidity, precipitation, rain and wind at configured coordinates. <a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener">Documentation</a></li>
+<li><strong>Copernicus Data Space STAC API</strong> — satellite product catalogue metadata for Sentinel-1 GRD and Sentinel-2 L2A over Nepal's bounding region. <a href="https://stac.dataspace.copernicus.eu/v1/" target="_blank" rel="noopener">Catalogue API</a></li>
+<li><strong>Nepal Department of Hydrology and Meteorology (DHM)</strong> — official forecasts and warnings. <a href="https://www.hydrology.gov.np/" target="_blank" rel="noopener">Official flood forecasting portal</a> · <a href="https://dhm.gov.np/" target="_blank" rel="noopener">DHM website</a></li>
+<li><strong>ICIMOD</strong> — Himalayan research and regional hazard resources. <a href="https://www.icimod.org/" target="_blank" rel="noopener">ICIMOD</a></li>
+</ul><p class="small text-muted">DHM information is linked for authoritative reference; this application does not claim an automated DHM feed or relay official warnings.</p></div></div>
+<div class="col-lg-6"><div class="card-soft p-4"><h2 class="h5">Interpretation and limitations</h2><ul>
+<li>Open-Meteo values are modelled weather context, not direct river gauge measurements or a validated flood forecast.</li>
+<li>Satellite catalogue entries are product metadata only. Flood mapping requires downloading and processing imagery, validation, and appropriate geospatial methods.</li>
+<li>Cloud cover, satellite revisit time, product latency and terrain can limit satellite usefulness.</li>
+<li>Staff risk assessments are workflow records, not scientifically validated forecasts.</li>
+<li>Application alerts are internal records. The application does not send emergency notifications or issue official warnings.</li>
+<li>When a source is unavailable, the application displays an unavailable state rather than inventing values.</li>
+<li>Monitoring site coordinates are initial configured points and should be checked against authoritative geographic datasets before operational use.</li>
+</ul></div></div>
+<div class="col-12"><div class="card-soft p-4"><h2 class="h5">Cloud operations</h2><p class="mb-2">The application supports a PostgreSQL connection through <code>DATABASE_URL</code>. Optional AWS CloudWatch application logging can be enabled with <code>CLOUDWATCH_LOG_GROUP</code> and an IAM role with permission to write logs. Optional S3 snapshot archival can be enabled with <code>S3_BUCKET_NAME</code> and an IAM role with permission to write to the designated bucket.</p><p class="small text-muted mb-0">AWS resources must be provisioned and IAM permissions configured in your own AWS account. This code package does not claim that an AWS deployment has already been created.</p></div></div>
+</div>
+{% endblock %}

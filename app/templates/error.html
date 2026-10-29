@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block title %}Error {{ code }} | FloodGuard Sentinel{% endblock %}{% block content %}<div class="text-center py-5"><div class="display-1 fw-bold">{{ code }}</div><h1>{{ message }}</h1><a class="btn btn-primary mt-3" href="{{ url_for('main.index') }}">Return home</a></div>{% endblock %}
