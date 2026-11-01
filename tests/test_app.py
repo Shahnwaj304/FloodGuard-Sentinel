@@ -76,3 +76,26 @@ def test_satellite_catalogue_page_does_not_require_live_network(client):
     assert response.status_code == 200
     assert b'Copernicus Sentinel catalogue results' in response.data
     assert b'External feeds are disabled during automated tests' in response.data
+
+
+def test_repeated_initialization_is_idempotent(app):
+    """Calling seed_demo_data twice must not crash or create duplicate users."""
+    from app import seed_demo_data
+    from app.models import User
+
+    with app.app_context():
+        user_count_before = User.query.count()
+        # Call seed_demo_data a second time — must not raise or duplicate.
+        seed_demo_data(app)
+        user_count_after = User.query.count()
+        assert user_count_after == user_count_before, (
+            f"User count changed from {user_count_before} to {user_count_after} "
+            "after repeated seed_demo_data call"
+        )
+        # The three staff accounts must still exist exactly once each.
+        admin = User.query.filter_by(username='admin').all()
+        satellite = User.query.filter_by(username='satellite').all()
+        risk = User.query.filter_by(username='risk').all()
+        assert len(admin) == 1, f"Expected 1 admin, found {len(admin)}"
+        assert len(satellite) == 1, f"Expected 1 satellite user, found {len(satellite)}"
+        assert len(risk) == 1, f"Expected 1 risk user, found {len(risk)}"
