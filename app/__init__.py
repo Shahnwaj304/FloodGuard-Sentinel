@@ -95,32 +95,62 @@ def configure_cloudwatch_logging(app):
 def seed_demo_data(app):
     """Create initial staff accounts, configured locations and preparedness guidance.
 
+    Idempotent: existing records are never overwritten. Safe for concurrent
+    Gunicorn workers — each record is checked before insert, and the session
+    is rolled back on conflict so a racing worker does not crash.
+
     No fabricated observations, risk assessments or alerts are seeded. Current
     weather and satellite catalogue metadata are retrieved by live-data adapters.
     """
     from .models import User, Location, PreparednessResource
 
-    users = [
-        User(username='admin', email='admin@floodguard.local', role='Administrator', display_name='System Administrator'),
-        User(username='satellite', email='satellite@floodguard.local', role='Satellite Data Officer', display_name='Satellite Data Officer'),
-        User(username='risk', email='risk@floodguard.local', role='Risk & Alert Officer', display_name='Risk & Alert Officer'),
+    # --- Staff accounts (idempotent, race-safe) ---
+    staff_accounts = [
+        dict(username='admin', email='admin@floodguard.local', role='Administrator', display_name='System Administrator'),
+        dict(username='satellite', email='satellite@floodguard.local', role='Satellite Data Officer', display_name='Satellite Data Officer'),
+        dict(username='risk', email='risk@floodguard.local', role='Risk & Alert Officer', display_name='Risk & Alert Officer'),
     ]
-    for user in users:
-        user.set_password(os.getenv('INITIAL_STAFF_PASSWORD', '').strip() or 'Demo123!Change')
-        db.session.add(user)
+    default_password = os.getenv('INITIAL_STAFF_PASSWORD', '').strip() or 'Demo123!Change'
+    for account in staff_accounts:
+        existing = User.query.filter_by(username=account['username']).first()
+        if existing:
+            # Never overwrite an existing account's password or role.
+            continue
+        new_user = User(**account)
+        new_user.set_password(default_password)
+        db.session.add(new_user)
+    try:
+        db.session.commit()
+    except Exception:
+        # Another worker inserted the same user concurrently.
+        # Roll back so this worker can continue serving requests.
+        db.session.rollback()
 
-    # Configured monitoring sites, not reports of current hazard events.
-    locations = [
-        Location(name='Imja Tsho', district='Solukhumbu', hazard_type='Glacial lake / GLOF', latitude=27.898, longitude=86.929, description='Configured monitoring location in the Everest region. Coordinates should be verified against an authoritative gazetteer before operational use.'),
-        Location(name='Melamchi River', district='Sindhupalchok', hazard_type='Flash flood / debris flow', latitude=27.835, longitude=85.570, description='Configured river monitoring corridor. No live flood status is implied.'),
-        Location(name='Koshi River Corridor', district='Sunsari', hazard_type='River flooding', latitude=26.665, longitude=87.160, description='Configured downstream monitoring corridor. No live flood status is implied.'),
-        Location(name='Seti River', district='Kaski', hazard_type='Flash flood', latitude=28.250, longitude=83.950, description='Configured monitoring location for rapid-onset flood awareness. No live hazard status is implied.'),
+    # --- Configured monitoring locations (idempotent) ---
+    configured_locations = [
+        dict(name='Imja Tsho', district='Solukhumbu', hazard_type='Glacial lake / GLOF', latitude=27.898, longitude=86.929, description='Configured monitoring location in the Everest region. Coordinates should be verified against an authoritative gazetteer before operational use.'),
+        dict(name='Melamchi River', district='Sindhupalchok', hazard_type='Flash flood / debris flow', latitude=27.835, longitude=85.570, description='Configured river monitoring corridor. No live flood status is implied.'),
+        dict(name='Koshi River Corridor', district='Sunsari', hazard_type='River flooding', latitude=26.665, longitude=87.160, description='Configured downstream monitoring corridor. No live flood status is implied.'),
+        dict(name='Seti River', district='Kaski', hazard_type='Flash flood', latitude=28.250, longitude=83.950, description='Configured monitoring location for rapid-onset flood awareness. No live hazard status is implied.'),
     ]
-    db.session.add_all(locations)
-    resources = [
-        PreparednessResource(title='Prepare an emergency kit', category='Preparedness', body='Keep drinking water, essential medicines, a torch, batteries, copies of important documents and a charged phone ready.'),
-        PreparednessResource(title='Know your evacuation route', category='Planning', body='Identify safe higher ground and local evacuation routes in advance. Follow instructions from authorised local officials.'),
-        PreparednessResource(title='Use official warnings', category='Reliable information', body='Check Nepal Department of Hydrology and Meteorology and local authorities for verified forecasts and emergency instructions.'),
+    for loc in configured_locations:
+        if not Location.query.filter_by(name=loc['name']).first():
+            db.session.add(Location(**loc))
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    # --- Preparedness resources (idempotent) ---
+    configured_resources = [
+        dict(title='Prepare an emergency kit', category='Preparedness', body='Keep drinking water, essential medicines, a torch, batteries, copies of important documents and a charged phone ready.'),
+        dict(title='Know your evacuation route', category='Planning', body='Identify safe higher ground and local evacuation routes in advance. Follow instructions from authorised local officials.'),
+        dict(title='Use official warnings', category='Reliable information', body='Check Nepal Department of Hydrology and Meteorology and local authorities for verified forecasts and emergency instructions.'),
     ]
-    db.session.add_all(resources)
-    db.session.commit()
+    for res in configured_resources:
+        if not PreparednessResource.query.filter_by(title=res['title']).first():
+            db.session.add(PreparednessResource(**res))
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
