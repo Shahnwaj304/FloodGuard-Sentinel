@@ -1,7 +1,7 @@
 services:
   - type: web
     name: floodguard-sentinel
-    env: python
+    runtime: python
     repo: https://github.com/Shahnwaj304/FloodGuard-Sentinel
     region: singapore
     plan: free
@@ -21,9 +21,9 @@ services:
         fromDatabase:
           name: floodguard-db
           property: connectionString
-  - type: pserv
-    name: floodguard-db
-    env: postgres
+
+databases:
+  - name: floodguard-db
+    databaseName: floodguard
     region: singapore
     plan: free
-    ipAllowList: []
